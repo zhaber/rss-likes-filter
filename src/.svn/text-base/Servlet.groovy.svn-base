@@ -1,0 +1,86 @@
+import javax.servlet.http.*
+
+
+class Servlet extends HttpServlet {
+	
+	void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		resp.contentType = "text/xml"
+		if (req.getLocalName().equals("127.0.0.1")) {
+			resp.contentType = "text/plain"
+		}
+		resp.characterEncoding = "UTF-8"
+		def rss = req.getParameter("rss")
+		if (rss != null && !rss.isEmpty()) {
+			try {
+				def likes = req.getParameter("likes").toInteger()
+				def token = createAuthToken()
+				def postsNum = likes <= 100 ? 100 : 50; 
+				URL url = new URL("http://www.google.com/reader/public/atom/feed/" + rss + "?n="+ postsNum).withReader( 'UTF-8' ) { reader ->
+					def feed = new XmlParser().parseText(reader.text)
+					feed.entry.each { 
+						def entryLikes = it.'gr:likingUser'.size()
+						if (likes <= 100) {
+							if (entryLikes < likes) {
+								feed.remove(it)
+							}
+						} else {
+							if (entryLikes < 100) {
+								feed.remove(it)
+							} else {
+								def url = new java.net.URL("http://www.google.com/reader/api/0/item/likers?i=" + it.id.text())
+								def connection = url.openConnection()
+								connection.setRequestProperty("Content-Type", "application/atom+xml")
+								connection.setRequestProperty("Authorization",
+										"GoogleLogin auth=" + token)
+								def returnMessage = processRequest(connection, "")
+								if (returnMessage != null) { 
+									def likesFeed = new XmlParser().parseText(returnMessage)
+									if (likesFeed.list.object.size() < likes) {
+										feed.remove(it)
+									} 
+								} 
+							}
+						}
+					}
+					new XmlNodePrinter(resp.writer).print(feed)
+				}
+			} catch (MalformedURLException e) {
+				resp.writer.print e.getMessage()
+			} catch (IOException e) {
+				resp.writer.print e.getMessage()
+			} catch (org.xml.sax.SAXParseException e){
+				resp.writer.print "Wrong url: " + rss
+			}
+		}
+	}
+	
+	static String createAuthToken(){
+		def url = new java.net.URL("https://www.google.com/accounts/ClientLogin")
+		def connection = url.openConnection()
+		def queryString = "Email=ddm.rnd@gmail.com&Passwd=P@ssw0rd" +
+				"&service=reader&source=like-filter"
+		def returnMessage = processRequest(connection, queryString)
+		if(returnMessage != "Error"){
+			return returnMessage.split(/Auth=/)[1].trim()
+		}
+	}
+	
+	static String processRequest(connection, dataString){
+		if (!dataString.isEmpty()) {
+			connection.setRequestMethod("POST")
+			connection.doOutput = true
+			Writer writer = new OutputStreamWriter(connection.outputStream)
+			writer.write(dataString)
+			writer.close()
+		} else {
+			connection.setRequestMethod("GET")
+		}
+		connection.connect()
+		try {
+			def reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))
+			return reader.text
+		} catch (RuntimeException e) {
+			return null;
+		}
+	}
+}

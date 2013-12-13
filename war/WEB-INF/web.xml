@@ -1,0 +1,32 @@
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5">
+	<servlet>
+		<servlet-name>Servlet</servlet-name>
+		<servlet-class>Servlet</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>Index</servlet-name>
+		<servlet-class>Index</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>GroovyServlet</servlet-name>
+		<servlet-class>groovy.servlet.GroovyServlet</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>Servlet</servlet-name>
+		<url-pattern>/getFeed</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>GroovyServlet</servlet-name>
+		<url-pattern>/input.groovy</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>Index</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+
+</web-app>
