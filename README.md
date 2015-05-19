@@ -7,3 +7,5 @@ Installation:
 - Create a new application in Google App Engine: https://appengine.google.com/
 - Set the ID of your new app at war/WEB-INF/appengine-web.xml
 - Upload the files to Google App Engine: https://developers.google.com/appengine/docs/java/gettingstarted/uploading
+
+Demo: http://likes-filter.appspot.com/input.groovy
