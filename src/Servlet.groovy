@@ -20,8 +20,7 @@ class Servlet extends HttpServlet {
                 while (!urlSuccess && urlTries < maxTries) {
                     try {
                         // the pipe is required to truncate feeds and convert from atom to rss
-                        def url = 'http://pipes.yahoo.com/pipes/pipe.run?_id=7c67d9c315d7a90571384902ee92542b&_render=rss&rss=' + URLEncoder.encode(rss, 'UTF-8')
-                        new URL(url).withReader("UTF-8") { reader ->
+                        new URL(rss).withReader("UTF-8") { reader ->
                             def text = reader.text
                             def feed = new XmlParser().parseText(text)
                             def channel = feed.'channel'

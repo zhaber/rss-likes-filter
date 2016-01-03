@@ -37,7 +37,7 @@ html.html {
 								}
 							}
 							tr() {
-								td() { yieldUnescaped 'Minimum&nbsp;likes:' }
+								td("Minimum likes:", style: "white-space: nowrap");
 								td(colspan: 2, valign: "center") {
 									input(id:'likes', type : "text", name: "likes", value: 10, style:"width: 210px; float: left; margin: 0px 0px",
 											onfocus: "if (this.value == '10' && !like_keypress) { this.value = ''; like_focus = true}",
